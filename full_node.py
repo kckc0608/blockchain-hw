@@ -3,11 +3,11 @@ import socket
 from threading import Thread
 import json
 from transaction import Transaction
+from utxo import Utxo
 
 class FullNode():
     HOST = '127.0.0.1'
     PORT = 9999
-
 
     def __init__(self, transactions, utxo_set):
         self.transactions = transactions
@@ -49,9 +49,12 @@ class FullNode():
         pass
 
 
-json_dicts = json.load(open('transaction.json'))
-transaction_set = list(map(lambda json_dict:Transaction(json_dict), json_dicts))
+transaction_dict = json.load(open('data/transaction.json'))
+utxo_dict = json.load(open('data/utxo.json'))
+transaction_set = deque(map(lambda json_dict:Transaction(json_dict), transaction_dict))
+utxo_set = deque(map(lambda json_dict:Utxo(json_dict), utxo_dict))
 print(transaction_set)
+print(utxo_set)
 
-node = FullNode(transaction_set, None)
+node = FullNode(transaction_set, utxo_set)
 node.run()
