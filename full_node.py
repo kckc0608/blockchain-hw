@@ -1,10 +1,13 @@
 from collections import deque
 import socket
 from threading import Thread
+import json
+from transaction import Transaction
 
 class FullNode():
     HOST = '127.0.0.1'
     PORT = 9999
+
 
     def __init__(self, transactions, utxo_set):
         self.transactions = transactions
@@ -24,7 +27,8 @@ class FullNode():
                 # process query
                 # send response
                 continue
-            # process transaction
+            self.__process_transaction()
+
 
     def __set_socket(self):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,6 +44,14 @@ class FullNode():
             self.query_queue.append(data)
             print("receive query")
 
+    def __process_transaction(self):
 
-node = FullNode(None, None)
+        pass
+
+
+json_dicts = json.load(open('transaction.json'))
+transaction_set = list(map(lambda json_dict:Transaction(json_dict), json_dicts))
+print(transaction_set)
+
+node = FullNode(transaction_set, None)
 node.run()

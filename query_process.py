@@ -24,6 +24,9 @@ class QueryProcess:
                         print(data)
                         continue
                     if tokens[1] == 'utxoset':
+                        self.client_socket.send(bytes(tokens[0], 'utf-8'))
+                        data = self.client_socket.recv(1024)
+                        print(data)
                         continue
 
             print("알 수 없는 명령어 입니다.")

@@ -1,0 +1,20 @@
+[
+  {
+    "txid": "txid0",
+    "output_index": "output index0",
+    "amount": 0,
+    "locking_script": "locking script0"
+  },
+  {
+    "txid": "txid1",
+    "output_index": "output index1",
+    "amount": 0,
+    "locking_script": "locking script1"
+  },
+  {
+    "txid": "txid2",
+    "output_index": "output index2",
+    "amount": 0,
+    "locking_script": "locking script2"
+  }
+]

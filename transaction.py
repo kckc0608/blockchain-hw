@@ -11,8 +11,3 @@ class Transaction():
         return self.input_transaction + " " + self.unlocking_script + " " + str(self.output)
 
 
-## TEST
-json_dicts = json.load(open('transaction.json'))
-for json_dict in json_dicts:
-    transaction = Transaction(json_dict)
-    print(transaction)
