@@ -48,17 +48,19 @@ class FullNode():
             print("receive query")
 
     def __process_transaction(self):
-        # 1. tx fetch
+        if not self.transactions:
+            return
+
         now_tx :Transaction = self.transactions.popleft()
-        # 2. get tx's utxo from utxo set
         utxo :Utxo = self.__get_utxo(now_tx.input.ptxid, now_tx.input.output_index)
-        # 3. input amount >= sum(output amount)
+
         self.__validate_amount(now_tx, utxo)
-        # 4. check tx's unlocking script can unlock the locking script in utxo (연산결과 true하나만 남아야)
         self.__validate_script(now_tx, utxo)
-        # 5. utxo set 에 기존 input utxo 제거, output 들을 utxo로 추가
+
         self.__remove_utxo(utxo)
         self.__add_utxo_from_outputs(now_tx)
+
+        self.processed_tx.append(now_tx)
 
 
     def __check_utxo_is_contained(self, utxo :Utxo):
@@ -78,22 +80,25 @@ class FullNode():
         for utxo in self.utxo_set:
             if utxo.txid == ptxid and utxo.output_index == output_index:
                 return utxo
-
         raise Exception("utxo set에 없는 utxo")
 
     def __validate_amount(self, tx, utxo):
         input_amount = utxo.amount
         output_amount_sum = sum([output_amount for output_amount, locking_script in tx.output])
         if input_amount < output_amount_sum:
-            print(input_amount, output_amount_sum)
             raise Exception("올바르지 않은 amount 데이터")
 
     def __validate_script(self, tx, utxo):
-        ee = ExecutionEngine()
-        input_script = tx.input.unlocking_script
-        output_script = utxo.locking_script
-        script = input_script + " " + output_script
-        ee.calculate(tx, script)
+        try:
+            ee = ExecutionEngine()
+            input_script = tx.input.unlocking_script
+            output_script = utxo.locking_script
+            script = input_script + " " + output_script
+            ee.calculate(tx, script)
+            self.__print_script_validation_result(tx, "passed")
+        except Exception as e:
+            msg = str(e)
+            self.__print_script_validation_result(tx, "failed")
 
     def __add_utxo_from_outputs(self, tx):
         for i in range(len(tx.output)):
@@ -105,6 +110,15 @@ class FullNode():
                 "locking_script": locking_script
             })
             self.utxo_set.append(new_utxo)
+
+    def __print_script_validation_result(self, tx, result, failed_command=None):
+        print(f"transaction: {'txid'}")
+        print(f"\tinput")
+        for i in range(len(tx.output)):
+            print(f"\toutput:{i}")
+        print(f"\tvalidity check: {result}")
+        if result == "failed":
+            print(f"failed at {failed_command}")
 
 
 transaction_dict = json.load(open('data/transaction.json'))

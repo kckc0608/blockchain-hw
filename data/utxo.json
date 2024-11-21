@@ -8,13 +8,13 @@
   {
     "txid": "txid1",
     "output_index": 1,
-    "amount": 0,
+    "amount": 6,
     "locking_script": "locking script1"
   },
   {
     "txid": "txid2",
     "output_index": 2,
-    "amount": 0,
+    "amount": 6,
     "locking_script": "locking script2"
   }
 ]
