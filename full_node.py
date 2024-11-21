@@ -28,9 +28,9 @@ class FullNode():
     def run(self):
         while True:
             if self.query_queue:
-                query = self.query_queue.popleft()
-                self.__process_query(*query)
-                # send response
+                client_socket, addr, query = self.query_queue.popleft()
+                response = self.__process_query(query)
+                self.__send_response(client_socket, response)
                 continue
             self.__process_transaction()
 
@@ -50,21 +50,21 @@ class FullNode():
             print("receive query")
 
 
-    def __process_query(self, client_socket, addr, data):
-        if data == "transactions":
+    def __process_query(self, query):
+        if query == "transactions":
             response = ""
             for txid, result in self.processed_tx:
                 response += f"transaction: {txid}, validity check: {result}\n"
-            client_socket.send(response.encode('utf-8'))
-            return
+            return response
 
-        if data == "utxoset":
-            response = "utxoset not yet"
-            client_socket.send(response.encode('utf-8'))
-            return
+        if query == "utxoset":
+            return "utxoset not yet"
 
-        response = f"{data} 는 처리할 수 없는 쿼리"
-        client_socket.send(response.encode('utf-8'))
+        return f"{query} 는 처리할 수 없는 쿼리"
+
+    def __send_response(self, client_socket, data:str):
+        response = data.encode('utf-8')
+        client_socket.send(response)
 
 
     def __process_transaction(self):

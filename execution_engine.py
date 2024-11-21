@@ -15,7 +15,6 @@ class ExecutionEngine:
         pass
 
     def calculate(self, tx :Transaction, script:str):
-        print(script)
         self.__tx: Transaction = tx
         self.__script_list = ['OP_CHECKFINALRESULT'] + list(reversed(script.split()))
         print(self.__script_list)
@@ -26,7 +25,7 @@ class ExecutionEngine:
                 self.__operate(token)
             else:
                 self.__stack.append(token)
-            print(self.__stack)
+            # print(self.__stack)
 
 
     def __is_op(self, token: str):
@@ -137,7 +136,7 @@ class ExecutionEngine:
             pubKey = serialization.load_der_public_key(pubKey_byte)
             tx_hash = self.__hash(str(self.__tx))
             tx_hash_byte = str_to_byte(tx_hash)
-            print(self.__tx, tx_hash)
+            # print(self.__tx, tx_hash)
             pubKey.verify(signature_byte, tx_hash_byte, ec.ECDSA(Prehashed(hashes.SHA256())))
             return "TRUE"
         except Exception as e:
