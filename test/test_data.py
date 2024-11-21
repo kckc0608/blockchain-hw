@@ -38,11 +38,11 @@ data = "txid0 0  [(1, 'test_locking_script'), (2, 'test_locking_script'), (3, 't
 # print(byte_to_str(pem_data))
 # print(byte_to_str(public_key_byte))
 data = hash(data)
-print("transaction hasing : ", data)
 sig = private_key.sign(str_to_byte(data), ec.ECDSA(Prehashed(hashes.SHA256())))
 sig_str = byte_to_str(sig)
-print(hash(public_key_str))
-print(sig_str)
+# print("transaction hasing : ", data)
+# print(hash(public_key_str))
+# print(sig_str)
 public_key.verify(sig, str_to_byte(data), ec.ECDSA(Prehashed(hashes.SHA256())))
 
 

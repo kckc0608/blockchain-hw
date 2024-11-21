@@ -47,7 +47,6 @@ class FullNode():
             client_socket, addr = self.server_socket.accept()
             data = str(client_socket.recv(1024), encoding='utf-8')
             self.query_queue.append((client_socket, addr, data))
-            print("receive query")
 
 
     def __process_query(self, query):
@@ -136,13 +135,16 @@ class FullNode():
             self.utxo_set.append(new_utxo)
 
     def __print_script_validation_result(self, tx, result, failed_command=None):
-        print(f"transaction: {self.__hash(str(tx))}")
-        print(f"\tinput")
+        print(f"\033[1mtransaction:\033[0m \033[1;44;30m {self.__hash(str(tx))} \033[0m")
+        print(f"\tinput\t\t{str(tx.input)}")
         for i in range(len(tx.output)):
-            print(f"\toutput:{i}")
-        print(f"\tvalidity check: {result}")
+            print(f"\toutput:{i}\t{tx.output[i]}")
         if result == "failed":
-            print(f"\t\t\t\t\tfailed at {failed_command}")
+            print(f"\t\033[1mvalidity check:\033[0m \033[1;31m{result}\033[0m")
+            print(f"\t\t\t\t\t\033[3;31mfailed at \033[3;31m{failed_command}\033[0m")
+        else:
+            print(f"\t\033[1mvalidity check:\033[0m \033[1;32m{result}\033[0m")
+        print()
 
     def __hash(self, original_data: str):
         data = original_data.encode('ascii')
