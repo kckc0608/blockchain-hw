@@ -9,10 +9,11 @@ class FullNode():
     HOST = '127.0.0.1'
     PORT = 9999
 
-    def __init__(self, transactions, utxo_set):
+    def __init__(self, transactions :deque, utxo_set :deque):
         self.transactions = transactions
         self.utxo_set = utxo_set
         self.query_queue = deque()
+        self.processed_tx = []
 
         self.__set_socket()
         query_listening_thread = Thread(target=self.__get_query, daemon=True)
@@ -45,8 +46,22 @@ class FullNode():
             print("receive query")
 
     def __process_transaction(self):
-
+        # 1. tx fetch
+        now_tx :Transaction = self.transactions.popleft()
+        # 2. get tx's utxo from utxo set
+        utxo :Utxo = now_tx.input_transaction
+        if not self.__check_utxo_is_contained(utxo):
+            raise Exception("utxo set에 없는 utxo")
+        # 3. check tx's unlocking script can unlock the locking script in utxo (연산결과 true하나만 남아야)
+        # 4. input amout >= sum(output amount)
         pass
+
+    def __check_utxo_is_contained(self, utxo :Utxo):
+        for check_utxo in self.utxo_set:
+            if utxo.txid == check_utxo.txid and utxo.output_index == check_utxo.output_index:
+                return True
+
+        return False
 
 
 transaction_dict = json.load(open('data/transaction.json'))

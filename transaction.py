@@ -1,9 +1,9 @@
-import json
+from utxo import Utxo
 
 
 class Transaction():
     def __init__(self, json_dict):
-        self.input_transaction = json_dict['input']['utxo']
+        self.input_transaction :Utxo = Utxo(json_dict['input']['utxo'])
         self.unlocking_script = json_dict['input']['unlocking_script']
         self.output = [(output_dict['amount'], output_dict['locking_script']) for output_dict in json_dict['output']]
 
