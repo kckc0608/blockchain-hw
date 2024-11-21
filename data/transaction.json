@@ -1,7 +1,10 @@
 [
   {
     "input": {
-      "utxo" : "test_utxo",
+      "utxo" : {
+        "txid": "txid0",
+        "output_index": 0
+      },
       "unlocking_script" : "test_unlocking_script"
     },
     "output": [
@@ -21,7 +24,10 @@
   },
   {
     "input": {
-      "utxo" : "test_utxo",
+      "utxo" : {
+        "txid": "txid1",
+        "output_index": 1
+      },
       "unlocking_script" : "test_unlocking_script"
     },
     "output": [
@@ -41,7 +47,10 @@
   },
   {
     "input": {
-      "utxo" : "test_utxo",
+      "utxo" : {
+        "txid": "txid2",
+        "output_index": 2
+      },
       "unlocking_script" : "test_unlocking_script"
     },
     "output": [

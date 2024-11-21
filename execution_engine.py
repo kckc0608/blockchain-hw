@@ -11,11 +11,9 @@ class ExecutionEngine:
         self.__stack = []
         pass
 
-    def calculate(self, tx :Transaction):
-        input_script:str = tx.unlocking_script
-        output_script:str = tx.input_transaction.locking_script
+    def calculate(self, tx :Transaction, script:str):
         self.__tx: Transaction = tx
-        self.__script_list = list(reversed(output_script.split())) + list(reversed(input_script.split()))
+        self.__script_list = list(reversed(script.split()))
         self.__stack = []
         while len(self.__script_list) > 1:
             token = self.__script_list.pop()

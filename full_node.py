@@ -51,18 +51,15 @@ class FullNode():
         # 1. tx fetch
         now_tx :Transaction = self.transactions.popleft()
         # 2. get tx's utxo from utxo set
-        utxo :Utxo = now_tx.input_transaction
-        if not self.__check_utxo_is_contained(utxo):
-            raise Exception("utxo set에 없는 utxo")
+        utxo :Utxo = self.__get_utxo(now_tx.input.ptxid, now_tx.input.output_index)
         # 3. input amount >= sum(output amount)
-        input_amount = now_tx.input_transaction.amount
-        output_amount_sum = sum([output_amount for output_amount, locking_script in now_tx.output])
-        if input_amount < output_amount_sum:
-            raise Exception("올바르지 않은 amount 데이터")
+        self.__validate_amount(now_tx, utxo)
         # 4. check tx's unlocking script can unlock the locking script in utxo (연산결과 true하나만 남아야)
-        ee = ExecutionEngine()
-        ee.calculate(now_tx)
+        self.__validate_script(now_tx, utxo)
         # 5. utxo set 에 기존 input utxo 제거, output 들을 utxo로 추가
+        self.__remove_utxo(utxo)
+        self.__add_utxo_from_outputs(now_tx)
+
 
     def __check_utxo_is_contained(self, utxo :Utxo):
         for check_utxo in self.utxo_set:
@@ -70,6 +67,44 @@ class FullNode():
                 return True
 
         return False
+
+    def __remove_utxo(self, utxo:Utxo):
+        for check_utxo in self.utxo_set:
+            if utxo.txid == check_utxo.txid and utxo.output_index == check_utxo.output_index:
+                self.utxo_set.remove(check_utxo)
+                return
+
+    def __get_utxo(self, ptxid:str, output_index:int):
+        for utxo in self.utxo_set:
+            if utxo.txid == ptxid and utxo.output_index == output_index:
+                return utxo
+
+        raise Exception("utxo set에 없는 utxo")
+
+    def __validate_amount(self, tx, utxo):
+        input_amount = utxo.amount
+        output_amount_sum = sum([output_amount for output_amount, locking_script in tx.output])
+        if input_amount < output_amount_sum:
+            print(input_amount, output_amount_sum)
+            raise Exception("올바르지 않은 amount 데이터")
+
+    def __validate_script(self, tx, utxo):
+        ee = ExecutionEngine()
+        input_script = tx.input.unlocking_script
+        output_script = utxo.locking_script
+        script = input_script + " " + output_script
+        ee.calculate(tx, script)
+
+    def __add_utxo_from_outputs(self, tx):
+        for i in range(len(tx.output)):
+            amount, locking_script = tx.output[i]
+            new_utxo:Utxo = Utxo({
+                "txid": "txid",
+                "output_index": i,
+                "amount": amount,
+                "locking_script": locking_script
+            })
+            self.utxo_set.append(new_utxo)
 
 
 transaction_dict = json.load(open('data/transaction.json'))
