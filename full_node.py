@@ -2,6 +2,8 @@ from collections import deque
 import socket
 from threading import Thread
 import json
+
+from execution_engine import ExecutionEngine
 from transaction import Transaction
 from utxo import Utxo
 
@@ -52,9 +54,15 @@ class FullNode():
         utxo :Utxo = now_tx.input_transaction
         if not self.__check_utxo_is_contained(utxo):
             raise Exception("utxo set에 없는 utxo")
-        # 3. check tx's unlocking script can unlock the locking script in utxo (연산결과 true하나만 남아야)
-        # 4. input amout >= sum(output amount)
-        pass
+        # 3. input amount >= sum(output amount)
+        input_amount = now_tx.input_transaction.amount
+        output_amount_sum = sum([output_amount for output_amount, locking_script in now_tx.output])
+        if input_amount < output_amount_sum:
+            raise Exception("올바르지 않은 amount 데이터")
+        # 4. check tx's unlocking script can unlock the locking script in utxo (연산결과 true하나만 남아야)
+        ee = ExecutionEngine()
+        ee.calculate(now_tx)
+        # 5. utxo set 에 기존 input utxo 제거, output 들을 utxo로 추가
 
     def __check_utxo_is_contained(self, utxo :Utxo):
         for check_utxo in self.utxo_set:
