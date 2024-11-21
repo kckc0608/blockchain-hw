@@ -5,7 +5,7 @@
         "txid": "txid0",
         "output_index": 0
       },
-      "unlocking_script" : "test_unlocking_script"
+      "unlocking_script" : "MEUCIQCqusjkgypCBznfz5BEwfW0+lNrDYRxKrKAco9DXhp8SAIgOEKNBH0SHcj+10M5W7xkkANZkm9Y46CkFk4mhc38D74= MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdvLD3mnd3k7iWpRDqo6RvxdvbA7HC8jlNsCqIXLmxiI59Ejpy7SPsU2M3jhWlhoSgw9JcUwENdZCutwmQLILJg=="
     },
     "output": [
       {

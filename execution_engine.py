@@ -1,7 +1,10 @@
 import base64
 
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 
+from test.test_data import str_to_byte
 from transaction import Transaction
 
 
@@ -12,15 +15,18 @@ class ExecutionEngine:
         pass
 
     def calculate(self, tx :Transaction, script:str):
+        print(script)
         self.__tx: Transaction = tx
-        self.__script_list = list(reversed(script.split()))
+        self.__script_list = ['OP_CHECKFINALRESULT'] + list(reversed(script.split()))
+        print(self.__script_list)
         self.__stack = []
-        while len(self.__script_list) > 1:
+        while len(self.__script_list):
             token = self.__script_list.pop()
             if self.__is_op(token):
                 self.__operate(token)
             else:
                 self.__stack.append(token)
+            print(self.__stack)
 
 
     def __is_op(self, token: str):
@@ -116,21 +122,29 @@ class ExecutionEngine:
             raise Exception("CHECKFINALRESULT : 스택에 남아있는 원소가 TRUE가 아닙니다.")
 
 
-    def __hash(self, original_data):
+    def __hash(self, original_data:str):
+        data = original_data.encode('ascii')
         digest = hashes.Hash(hashes.SHA256())
-        digest.update(original_data)
-        return digest.finalize()
+        digest.update(data)
+        byte_hash = digest.finalize()
+        return base64.b64encode(byte_hash).decode('ascii')
 
 
     def __verify_sig(self, pub_key :str, signature :str):
         try:
-            pubKey_byte = base64.b64decode(pub_key.encode('ascii'))
-            pubKey = serialization.load_pem_public_key(pubKey_byte)
-            signature_byte = base64.b64decode(signature.encode('ascii'))
+            pubKey_byte = str_to_byte(pub_key)
+            signature_byte = str_to_byte(signature)
+            pubKey = serialization.load_der_public_key(pubKey_byte)
             tx_hash = self.__hash(str(self.__tx))
-            pubKey.verify(signature_byte, tx_hash)
-            print(pubKey)
+            tx_hash_byte = str_to_byte(tx_hash)
+            print(self.__tx, tx_hash)
+            pubKey.verify(signature_byte, tx_hash_byte, ec.ECDSA(Prehashed(hashes.SHA256())))
             return "TRUE"
         except Exception as e:
-            print(e)
             return "FALSE"
+
+    def __byte_to_str(self, data: bytes):
+        return base64.b64encode(data).decode('ascii')
+
+    def __str_to_byte(self, data: str):
+        return base64.b64decode(data.encode('ascii'))

@@ -3,7 +3,7 @@
     "txid": "txid0",
     "output_index": 0,
     "amount": 6,
-    "locking_script": "locking script0"
+    "locking_script": "OP_DUP OP_HASH YEpOqd95+FCzs3aqcZxqQyylgMoSAjyPGYS2iCwbLmM= OP_EQUALVERIFY OP_CHECKSIG"
   },
   {
     "txid": "txid1",

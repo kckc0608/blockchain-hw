@@ -97,8 +97,8 @@ class FullNode():
             ee.calculate(tx, script)
             self.__print_script_validation_result(tx, "passed")
         except Exception as e:
-            msg = str(e)
-            self.__print_script_validation_result(tx, "failed")
+            command = str(e).split(":")[0]
+            self.__print_script_validation_result(tx, "failed", command)
 
     def __add_utxo_from_outputs(self, tx):
         for i in range(len(tx.output)):
@@ -118,15 +118,13 @@ class FullNode():
             print(f"\toutput:{i}")
         print(f"\tvalidity check: {result}")
         if result == "failed":
-            print(f"failed at {failed_command}")
+            print(f"\t\t\t\t\tfailed at {failed_command}")
 
 
 transaction_dict = json.load(open('data/transaction.json'))
 utxo_dict = json.load(open('data/utxo.json'))
 transaction_set = deque(map(lambda json_dict:Transaction(json_dict), transaction_dict))
 utxo_set = deque(map(lambda json_dict:Utxo(json_dict), utxo_dict))
-print(transaction_set)
-print(utxo_set)
 
 node = FullNode(transaction_set, utxo_set)
 node.run()
