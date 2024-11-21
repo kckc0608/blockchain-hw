@@ -1,7 +1,10 @@
+import base64
 from collections import deque
-import socket
 from threading import Thread
+from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import json
+
+from cryptography.hazmat.primitives import hashes
 
 from execution_engine import ExecutionEngine
 from transaction import Transaction
@@ -26,16 +29,15 @@ class FullNode():
         while True:
             if self.query_queue:
                 query = self.query_queue.popleft()
-                print(query)
-                # process query
+                self.__process_query(*query)
                 # send response
                 continue
             self.__process_transaction()
 
 
     def __set_socket(self):
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server_socket = socket(AF_INET, SOCK_STREAM)
+        self.server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.server_socket.bind((self.HOST, self.PORT))
 
 
@@ -44,8 +46,26 @@ class FullNode():
         while True:
             client_socket, addr = self.server_socket.accept()
             data = str(client_socket.recv(1024), encoding='utf-8')
-            self.query_queue.append(data)
+            self.query_queue.append((client_socket, addr, data))
             print("receive query")
+
+
+    def __process_query(self, client_socket, addr, data):
+        if data == "transactions":
+            response = ""
+            for txid, result in self.processed_tx:
+                response += f"transaction: {txid}, validity check: {result}\n"
+            client_socket.send(response.encode('utf-8'))
+            return
+
+        if data == "utxoset":
+            response = "utxoset not yet"
+            client_socket.send(response.encode('utf-8'))
+            return
+
+        response = f"{data} 는 처리할 수 없는 쿼리"
+        client_socket.send(response.encode('utf-8'))
+
 
     def __process_transaction(self):
         if not self.transactions:
@@ -55,12 +75,12 @@ class FullNode():
         utxo :Utxo = self.__get_utxo(now_tx.input.ptxid, now_tx.input.output_index)
 
         self.__validate_amount(now_tx, utxo)
-        self.__validate_script(now_tx, utxo)
+        result = self.__validate_script(now_tx, utxo)
 
         self.__remove_utxo(utxo)
         self.__add_utxo_from_outputs(now_tx)
 
-        self.processed_tx.append(now_tx)
+        self.processed_tx.append((self.__hash(str(now_tx)), result))
 
 
     def __check_utxo_is_contained(self, utxo :Utxo):
@@ -89,16 +109,20 @@ class FullNode():
             raise Exception("올바르지 않은 amount 데이터")
 
     def __validate_script(self, tx, utxo):
+        result = "failed"
         try:
             ee = ExecutionEngine()
             input_script = tx.input.unlocking_script
             output_script = utxo.locking_script
             script = input_script + " " + output_script
             ee.calculate(tx, script)
-            self.__print_script_validation_result(tx, "passed")
+            result = "passed"
+            self.__print_script_validation_result(tx, result)
         except Exception as e:
             command = str(e).split(":")[0]
-            self.__print_script_validation_result(tx, "failed", command)
+            self.__print_script_validation_result(tx, result, command)
+        finally:
+            return result
 
     def __add_utxo_from_outputs(self, tx):
         for i in range(len(tx.output)):
@@ -112,13 +136,20 @@ class FullNode():
             self.utxo_set.append(new_utxo)
 
     def __print_script_validation_result(self, tx, result, failed_command=None):
-        print(f"transaction: {'txid'}")
+        print(f"transaction: {self.__hash(str(tx))}")
         print(f"\tinput")
         for i in range(len(tx.output)):
             print(f"\toutput:{i}")
         print(f"\tvalidity check: {result}")
         if result == "failed":
             print(f"\t\t\t\t\tfailed at {failed_command}")
+
+    def __hash(self, original_data: str):
+        data = original_data.encode('ascii')
+        digest = hashes.Hash(hashes.SHA256())
+        digest.update(data)
+        byte_hash = digest.finalize()
+        return base64.b64encode(byte_hash).decode('ascii')
 
 
 transaction_dict = json.load(open('data/transaction.json'))
