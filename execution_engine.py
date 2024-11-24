@@ -4,7 +4,6 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 
-from test.test_data import str_to_byte
 from transaction import Transaction
 
 
@@ -131,11 +130,11 @@ class ExecutionEngine:
 
     def __verify_sig(self, pub_key :str, signature :str):
         try:
-            pubKey_byte = str_to_byte(pub_key)
-            signature_byte = str_to_byte(signature)
+            pubKey_byte = self.__str_to_byte(pub_key)
+            signature_byte = self.__str_to_byte(signature)
             pubKey = serialization.load_der_public_key(pubKey_byte)
             tx_hash = self.__hash(str(self.__tx))
-            tx_hash_byte = str_to_byte(tx_hash)
+            tx_hash_byte = self.__str_to_byte(tx_hash)
             # print(self.__tx, tx_hash)
             pubKey.verify(signature_byte, tx_hash_byte, ec.ECDSA(Prehashed(hashes.SHA256())))
             return "TRUE"
