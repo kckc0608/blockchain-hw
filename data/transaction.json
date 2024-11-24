@@ -10,7 +10,7 @@
     "output": [
       {
         "amount": 1,
-        "locking_script": "test_locking_script"
+        "locking_script": "OP_DUP OP_HASH <scriptXHash> OP_EQUALVERIFY"
       },
       {
         "amount": 2,

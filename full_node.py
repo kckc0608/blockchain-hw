@@ -57,7 +57,11 @@ class FullNode():
             return response
 
         if query == "utxoset":
-            return "utxoset not yet"
+            response = ""
+            for i in range(len(self.utxo_set)):
+                now_utxo: Utxo = self.utxo_set[i]
+                response += (f"utxo{i}: {now_utxo.txid}, {now_utxo.output_index}, {now_utxo.amount}, {now_utxo.locking_script}\n")
+            return response
 
         return f"{query} 는 처리할 수 없는 쿼리"
 
@@ -76,8 +80,9 @@ class FullNode():
         self.__validate_amount(now_tx, utxo)
         result = self.__validate_script(now_tx, utxo)
 
-        self.__remove_utxo(utxo)
-        self.__add_utxo_from_outputs(now_tx)
+        if result == "pass":
+            self.__remove_utxo(utxo)
+            self.__add_utxo_from_outputs(now_tx)
 
         self.processed_tx.append((self.__hash(str(now_tx)), result))
 

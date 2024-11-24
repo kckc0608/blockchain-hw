@@ -9,12 +9,12 @@
     "txid": "txid1",
     "output_index": 1,
     "amount": 6,
-    "locking_script": "locking script1"
+    "locking_script": "OP_DUP OP_HASH <scriptXHash> OP_EQUALVERIFY"
   },
   {
     "txid": "txid2",
     "output_index": 2,
     "amount": 6,
-    "locking_script": "locking script2"
+    "locking_script": "2 <Pub1> <Pub2> <Pub3> 3 CHECKMULTISIG"
   }
 ]
