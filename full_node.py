@@ -3,6 +3,7 @@ from collections import deque
 from threading import Thread
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import json
+from typing import final
 
 from cryptography.hazmat.primitives import hashes
 
@@ -74,17 +75,19 @@ class FullNode():
         if not self.transactions:
             return
 
+        result = "failed"
         now_tx :Transaction = self.transactions.popleft()
-        utxo :Utxo = self.__get_utxo(now_tx.input.ptxid, now_tx.input.output_index)
-
-        self.__validate_amount(now_tx, utxo)
-        result = self.__validate_script(now_tx, utxo)
-
-        if result == "passed":
+        try:
+            utxo :Utxo = self.__get_utxo(now_tx.input.ptxid, now_tx.input.output_index)
+            self.__validate_amount(now_tx, utxo)
+            self.__validate_script(now_tx, utxo)
+            result = "passed"
             self.__remove_utxo(utxo)
             self.__add_utxo_from_outputs(now_tx)
-
-        self.processed_tx.append((self.__hash(str(now_tx)), result))
+        except Exception as e:
+            print(str(e))
+        finally:
+            self.processed_tx.append((self.__hash(str(now_tx)), result))
 
 
     def __check_utxo_is_contained(self, utxo :Utxo):
@@ -113,20 +116,17 @@ class FullNode():
             raise Exception("올바르지 않은 amount 데이터")
 
     def __validate_script(self, tx, utxo):
-        result = "failed"
         try:
             ee = ExecutionEngine()
             input_script = tx.input.unlocking_script
             output_script = utxo.locking_script
             script = input_script + " " + output_script
             ee.calculate(tx, script)
-            result = "passed"
-            self.__print_script_validation_result(tx, result)
+            self.__print_script_validation_result(tx, "passed")
         except Exception as e:
             command = str(e).split(":")[0]
-            self.__print_script_validation_result(tx, result, command)
-        finally:
-            return result
+            self.__print_script_validation_result(tx, "failed", command)
+            raise Exception("스크랩트 검증 실패")
 
     def __add_utxo_from_outputs(self, tx):
         for i in range(len(tx.output)):
