@@ -80,7 +80,7 @@ class FullNode():
         self.__validate_amount(now_tx, utxo)
         result = self.__validate_script(now_tx, utxo)
 
-        if result == "pass":
+        if result == "passed":
             self.__remove_utxo(utxo)
             self.__add_utxo_from_outputs(now_tx)
 
