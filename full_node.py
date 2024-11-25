@@ -3,7 +3,6 @@ from collections import deque
 from threading import Thread
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 import json
-from typing import final
 
 from cryptography.hazmat.primitives import hashes
 
@@ -120,7 +119,7 @@ class FullNode():
             ee = ExecutionEngine()
             input_script = tx.input.unlocking_script
             output_script = utxo.locking_script
-            script = input_script + " " + output_script
+            script = input_script + " " + output_script + " OP_CHECKFINALRESULT"
             ee.calculate(tx, script)
             self.__print_script_validation_result(tx, "passed")
         except Exception as e:

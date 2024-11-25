@@ -14,21 +14,40 @@ class ExecutionEngine:
         pass
 
     def calculate(self, tx :Transaction, script:str):
+        print(script)
         self.__tx: Transaction = tx
-        self.__script_list = ['OP_CHECKFINALRESULT'] + list(reversed(script.split()))
-        print(self.__script_list)
         self.__stack = []
+        script_tokens = list(reversed(script.split()))
+        if not script_tokens:
+            raise Exception("script is empty")
+
+        if len(script_tokens) > 1 and script_tokens[1] == "OP_EQUALVERIFY" and script_tokens[0] == "OP_CHECKFINALRESULT": # P2SH
+            op_dup_idx = script_tokens.index("OP_DUP")
+            script_sig_tokens = script_tokens[op_dup_idx+1:]
+            while script_sig_tokens:
+                token = script_sig_tokens[-1]
+                if self.__is_op(token):
+                    break
+
+                self.__stack.append(script_sig_tokens.pop())
+
+            self.__script_list = script_tokens[:op_dup_idx+1] + [" ".join(reversed(script_sig_tokens))]
+        else:
+            self.__script_list = script_tokens
+        # print(script_tokens)
+        # print(self.__script_list)
         while len(self.__script_list):
             token = self.__script_list.pop()
             if self.__is_op(token):
+                print(token)
                 self.__operate(token)
             else:
                 self.__stack.append(token)
-            # print(self.__stack)
+            print(self.__stack)
 
 
     def __is_op(self, token: str):
-        return token.startswith('OP_')
+        return token.startswith('OP_') and ' ' not in token
 
 
     def __operate(self, op: str):
@@ -114,6 +133,10 @@ class ExecutionEngine:
 
 
     def __CHECKFINALRESULT(self):
+        check_script = ""
+        while self.__stack:
+            check_script = self.__stack.pop() + " " + check_script
+        self.calculate(self.__tx, check_script.strip())
         if len(self.__stack) != 1:
             raise Exception("CHECKFINALRESULT : 스택에 원소가 1개 남아있어야 합니다.")
         if self.__stack[-1] != "TRUE":

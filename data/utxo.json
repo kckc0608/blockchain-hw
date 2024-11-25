@@ -9,7 +9,7 @@
     "txid": "txid1",
     "output_index": 1,
     "amount": 6,
-    "locking_script": "OP_DUP OP_HASH <scriptXHash> OP_EQUALVERIFY"
+    "locking_script": "OP_DUP OP_HASH BlEJZwFt+CBg1i15ysGBfOXHTd/2PSY6C4S029mEgXQ= OP_EQUALVERIFY"
   },
   {
     "txid": "txid2",

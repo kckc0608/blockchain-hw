@@ -38,7 +38,8 @@ pem_data = private_key.private_bytes(
 public_key_byte = (public_key.public_bytes(encoding=serialization.Encoding.DER, format=serialization.PublicFormat.SubjectPublicKeyInfo))
 print(byte_to_str(pem_data))
 print(byte_to_str(public_key_byte))
-data = hash(data)
+# data = hash(data)
+data = "2n/xwTuqEIC94Fpk0cE6HpzsKJ1txCZPpt9rq5u/9MU="
 sig = private_key.sign(str_to_byte(data), ec.ECDSA(Prehashed(hashes.SHA256())))
 sig_str = byte_to_str(sig)
 print("transaction hasing : ", data)

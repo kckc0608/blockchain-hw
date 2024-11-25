@@ -28,7 +28,7 @@
         "txid": "txid1",
         "output_index": 1
       },
-      "unlocking_script" : "test_unlocking_script"
+      "unlocking_script" : "MEQCIHrVr9XAsw5PoqjsJWu6AgrBHOjX9T+/BlKd8Gj2NhHXAiAVyQWzuDmLMUCz/BHY8tqEjkl3543c0wt8YnkcOUOkdg== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdvLD3mnd3k7iWpRDqo6RvxdvbA7HC8jlNsCqIXLmxiI59Ejpy7SPsU2M3jhWlhoSgw9JcUwENdZCutwmQLILJg== OP_DUP OP_HASH YEpOqd95+FCzs3aqcZxqQyylgMoSAjyPGYS2iCwbLmM= OP_EQUALVERIFY OP_CHECKSIG"
     },
     "output": [
       {
