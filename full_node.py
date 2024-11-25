@@ -21,16 +21,20 @@ class FullNode():
         self.processed_tx = []
 
         self.__set_socket()
-        query_listening_thread = Thread(target=self.__get_query, daemon=True)
+        query_listening_thread = Thread(target=self.__get_client, daemon=True)
         query_listening_thread.start()
 
 
     def run(self):
         while True:
             if self.query_queue:
-                client_socket, addr, query = self.query_queue.popleft()
-                response = self.__process_query(query)
-                self.__send_response(client_socket, response)
+                try:
+                    client_socket, query = self.query_queue.popleft()
+                    response = self.__process_query(query)
+                    self.__send_response(client_socket, response)
+                except Exception as e:
+                    # print(f"run: {e}")
+                    client_socket.close()
                 continue
             self.__process_transaction()
 
@@ -41,12 +45,27 @@ class FullNode():
         self.server_socket.bind((self.HOST, self.PORT))
 
 
-    def __get_query(self):
+    def __get_client(self):
         self.server_socket.listen()
         while True:
-            client_socket, addr = self.server_socket.accept()
-            data = str(client_socket.recv(1024), encoding='utf-8')
-            self.query_queue.append((client_socket, addr, data))
+            try:
+                client_socket, addr = self.server_socket.accept()
+                query_listening_thread = Thread(target=self.__get_query, daemon=True, kwargs={"client_socket": client_socket})
+                query_listening_thread.start()
+            except Exception as e:
+                client_socket.close()
+                # print(e)
+
+    def __get_query(self, client_socket):
+        self.server_socket.listen()
+        while True:
+            try:
+                data = str(client_socket.recv(1024), encoding='utf-8')
+                self.query_queue.append((client_socket, data))
+            except Exception as e:
+                # print(e)
+                client_socket.close()
+                break
 
 
     def __process_query(self, query):
@@ -66,8 +85,11 @@ class FullNode():
         return f"{query} 는 처리할 수 없는 쿼리"
 
     def __send_response(self, client_socket, data:str):
-        response = data.encode('utf-8')
-        client_socket.send(response)
+        try:
+            response = data.encode('utf-8')
+            client_socket.send(response)
+        except ConnectionResetError:
+            client_socket.close()
 
 
     def __process_transaction(self):
