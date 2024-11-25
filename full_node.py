@@ -162,9 +162,9 @@ class FullNode():
 
     def __print_script_validation_result(self, tx, result, failed_command=None):
         print(f"\033[1mtransaction:\033[0m \033[1;44;30m {self.__hash(str(tx))} \033[0m")
-        print(f"\tinput\t\t{str(tx.input)}")
+        print(f"\tinput\t\t{str(tx.input)} \033[1;105;30m {tx.input.unlocking_script} \033[0m")
         for i in range(len(tx.output)):
-            print(f"\toutput:{i}\t{tx.output[i]}")
+            print(f"\toutput:{i}\t{tx.output[i][0]} satoshi, {tx.output[i][1]}")
         if result == "failed":
             print(f"\t\033[1mvalidity check:\033[0m \033[1;31m{result}\033[0m")
             print(f"\t\t\t\t\t\033[3;31mfailed at \033[3;31m{failed_command}\033[0m")

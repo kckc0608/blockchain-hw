@@ -14,7 +14,7 @@ class ExecutionEngine:
         pass
 
     def calculate(self, tx :Transaction, script:str):
-        print(script)
+        # print(script)
         self.__tx: Transaction = tx
         self.__stack = []
         script_tokens = list(reversed(script.split()))
@@ -39,11 +39,11 @@ class ExecutionEngine:
         while len(self.__script_list):
             token = self.__script_list.pop()
             if self.__is_op(token):
-                print(token)
+                # print(token)
                 self.__operate(token)
             else:
                 self.__stack.append(token)
-            print(self.__stack)
+            # print(self.__stack)
 
 
     def __is_op(self, token: str):
