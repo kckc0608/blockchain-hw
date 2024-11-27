@@ -1,8 +1,7 @@
-import base64
+import base64, json, time
 from collections import deque
 from threading import Thread
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
-import json
 
 from cryptography.hazmat.primitives import hashes
 
@@ -37,6 +36,7 @@ class FullNode():
                     client_socket.close()
                 continue
             self.__process_transaction()
+            # time.sleep(2)
 
 
     def __set_socket(self):
@@ -72,14 +72,19 @@ class FullNode():
         if query == "transactions":
             response = ""
             for txid, result in self.processed_tx:
-                response += f"transaction: {txid}, validity check: {result}\n"
+                response += f"\033[1mtransaction: \033[44;30m {txid} \033[0m, \033[1mvalidity check: "
+                if result == 'passed':
+                    response += f"\033[1;32m{result}\033[0m\n"
+                else:
+                    response += f"\033[1;31m{result}\033[0m\n"
+
             return response
 
         if query == "utxoset":
             response = ""
             for i in range(len(self.utxo_set)):
                 now_utxo: Utxo = self.utxo_set[i]
-                response += (f"utxo{i}: {now_utxo.txid}, {now_utxo.output_index}, {now_utxo.amount}, {now_utxo.locking_script}\n")
+                response += (f"\033[1mutxo{i}:\t\033[44;30m {now_utxo.txid}, {now_utxo.output_index} \033[0m, \033[1m{now_utxo.amount} satoshi, {now_utxo.locking_script}\n")
             return response
 
         return f"{query} 는 처리할 수 없는 쿼리"
@@ -153,7 +158,7 @@ class FullNode():
         for i in range(len(tx.output)):
             amount, locking_script = tx.output[i]
             new_utxo:Utxo = Utxo({
-                "txid": "txid",
+                "txid": self.__hash(str(tx)),
                 "output_index": i,
                 "amount": amount,
                 "locking_script": locking_script
@@ -187,3 +192,8 @@ utxo_set = deque(map(lambda json_dict:Utxo(json_dict), utxo_dict))
 
 node = FullNode(transaction_set, utxo_set)
 node.run()
+
+
+# A -> B, C (3, 3)
+# B -> A, C (3, 3)
+# C -> A ,B (3, 3)

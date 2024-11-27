@@ -20,12 +20,12 @@ class QueryProcess:
                 if tokens[0] == 'snapshot':
                     if tokens[1] == 'transactions':
                         self.client_socket.send(bytes(tokens[1], 'utf-8'))
-                        data = self.client_socket.recv(1024).decode('utf-8')
+                        data = self.client_socket.recv(2048).decode('utf-8')
                         print(data)
                         continue
                     if tokens[1] == 'utxoset':
                         self.client_socket.send(bytes(tokens[1], 'utf-8'))
-                        data = self.client_socket.recv(1024).decode('utf-8')
+                        data = self.client_socket.recv(2048).decode('utf-8')
                         print(data)
                         continue
 
