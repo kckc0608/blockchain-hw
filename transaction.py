@@ -18,4 +18,14 @@ class Transaction():
         def __str__(self):
             return self.ptxid + " " + str(self.output_index) + " " #+ self.unlocking_script
 
+        def get_shorten_unlocking_script(self):
+            tokens = self.unlocking_script.split()
+            new_tokens = []
+            for token in tokens:
+                if len(token) > 8 and not token.startswith("OP_"):
+                    new_tokens.append(token[:3] + ".." + token[-5:] + " ")
+                else:
+                    new_tokens.append(token)
+            return " ".join(new_tokens)
+
 
