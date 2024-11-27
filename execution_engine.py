@@ -34,7 +34,6 @@ class ExecutionEngine:
             self.__script_list = script_tokens[:op_dup_idx+1] + [" ".join(reversed(script_sig_tokens))]
         else:
             self.__script_list = script_tokens
-        # print(script_tokens)
         # print(self.__script_list)
         while len(self.__script_list):
             token = self.__script_list.pop()
@@ -65,7 +64,7 @@ class ExecutionEngine:
         elif op == 'CHECKSIGVERIFY':
             self.__CHECKSIGVERIFY()
         elif op == 'CHECKMULTISIG':
-            pass
+            self.__CHECKMULTISIG()
         elif op == 'CHECKMULTISIGVERIFY':
             pass
         elif op == 'IF':
@@ -143,6 +142,19 @@ class ExecutionEngine:
             raise Exception("CHECKFINALRESULT : 스택에 남아있는 원소가 TRUE가 아닙니다.")
 
 
+    def __CHECKMULTISIG(self):
+        try:
+            pubkey_count = int(self.__stack.pop())
+            pubkey_list = [self.__stack.pop() for _ in range(pubkey_count)]
+            sig_count = int(self.__stack.pop())
+            sig_list = [self.__stack.pop() for _ in range(sig_count)]
+            result = self.__verify_multi_sig(pubkey_list, sig_list)
+            self.__stack.append(result)
+
+        except Exception as e:
+            raise Exception("CHECKMULTISIG : " + str(e))
+
+
     def __hash(self, original_data:str):
         data = original_data.encode('ascii')
         digest = hashes.Hash(hashes.SHA256())
@@ -163,6 +175,24 @@ class ExecutionEngine:
             return "TRUE"
         except Exception as e:
             return "FALSE"
+
+    def __verify_multi_sig(self, pubkey_list, sig_list):
+        try:
+            count = 0
+            for sig in sig_list:
+                for pubkey in pubkey_list:
+                    result = self.__verify_sig(pubkey, sig)
+                    if result == "TRUE":
+                        count += 1
+                        break
+
+            if count < len(sig_list):
+                return "FALSE"
+            else:
+                return "TRUE"
+        except Exception as e:
+            return "FALSE"
+
 
     def __byte_to_str(self, data: bytes):
         return base64.b64encode(data).decode('ascii')

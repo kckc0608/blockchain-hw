@@ -51,7 +51,7 @@
         "txid": "txid2",
         "output_index": 2
       },
-      "unlocking_script" : "test_unlocking_script"
+      "unlocking_script" : "MEUCIQCu8B12SNBypyVKjSb/lij3NCcEsIobanQ4YznW5X4LygIge13WONWIrQulL/LrylXO9fh/pPvKu86EhsF2Uh8nozI= MEUCIQDaTbVAJIK22MitFST2yTRxN5a/4d0P5hcfWzRy6OBrdQIgTPT/Ftg20vLjbkg8P2p/SMBBfX34pXlSq7fjE9U5C0s="
     },
     "output": [
       {
