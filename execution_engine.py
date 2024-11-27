@@ -16,7 +16,6 @@ class ExecutionEngine:
     def calculate(self, tx :Transaction, script:str):
         # print(script)
         self.__tx: Transaction = tx
-        self.__stack = []
         script_tokens = list(reversed(script.split()))
         if not script_tokens:
             raise Exception("script is empty")
@@ -31,10 +30,13 @@ class ExecutionEngine:
 
                 self.__stack.append(script_sig_tokens.pop())
 
+
             self.__script_list = script_tokens[:op_dup_idx+1] + [" ".join(reversed(script_sig_tokens))]
+            # print(self.__script_list)
+            # print(self.__stack)
         else:
             self.__script_list = script_tokens
-        # print(self.__script_list)
+
         while len(self.__script_list):
             token = self.__script_list.pop()
             if self.__is_op(token):
@@ -42,7 +44,7 @@ class ExecutionEngine:
                 self.__operate(token)
             else:
                 self.__stack.append(token)
-            # print(self.__stack)
+            # print(self.__stack, self.__script_list)
 
 
     def __is_op(self, token: str):
@@ -66,9 +68,9 @@ class ExecutionEngine:
         elif op == 'CHECKMULTISIG':
             self.__CHECKMULTISIG()
         elif op == 'CHECKMULTISIGVERIFY':
-            pass
+            self.__CHECKMULTISIGVERIFY()
         elif op == 'IF':
-            pass
+            self.__IF()
         elif op == 'CHECKFINALRESULT':
             self.__CHECKFINALRESULT()
         else:
@@ -153,6 +155,50 @@ class ExecutionEngine:
 
         except Exception as e:
             raise Exception("CHECKMULTISIG : " + str(e))
+
+    def __CHECKMULTISIGVERIFY(self):
+        try:
+            pubkey_count = int(self.__stack.pop())
+            pubkey_list = [self.__stack.pop() for _ in range(pubkey_count)]
+            sig_count = int(self.__stack.pop())
+            sig_list = [self.__stack.pop() for _ in range(sig_count)]
+            result = self.__verify_multi_sig(pubkey_list, sig_list)
+            if result == "FALSE":
+                raise Exception("CHECKMULTISIGVERIFY : 검증에 실패했습니다.")
+
+        except Exception as e:
+            raise Exception("CHECKMULTISIGVERIFY : " + str(e))
+
+
+    def __IF(self):
+        if not self.__stack:
+            raise Exception("IF : 스택이 비어있습니다.")
+        if_script = ""
+        else_script = ""
+        while self.__script_list:
+            token = self.__script_list.pop()
+            if token == "OP_ELSE":
+                while True:
+                    token = self.__script_list.pop()
+                    if token == "OP_ENDIF":
+                        break
+                    else_script += token
+                    else_script += " "
+            elif token == "OP_ENDIF":
+                break
+            else:
+                if_script += token
+                if_script += " "
+
+        # print(if_script)
+        # print(else_script)
+        condition = self.__stack.pop()
+        if condition == "TRUE":
+            self.calculate(self.__tx, if_script.strip())
+        elif condition == "FALSE" and else_script != "":
+            self.calculate(self.__tx, else_script.strip())
+        else:
+            raise Exception("IF : TRUE /  FALSE 가 아닙니다.")
 
 
     def __hash(self, original_data:str):

@@ -43,14 +43,22 @@ private_key2_obj = serialization.load_der_private_key(str_to_byte(private_key2),
 # data = hash(data)
 tx2_hash = "2n/xwTuqEIC94Fpk0cE6HpzsKJ1txCZPpt9rq5u/9MU="
 tx3_hash = "NrXDNealMeCuO04cBYsge8IqwNQKyP+wmVDpqrWMmio="
-sig = private_key1_obj.sign(str_to_byte(tx3_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
-sig2 = private_key2_obj.sign(str_to_byte(tx3_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
-sig_str = byte_to_str(sig2)
-print("transaction hasing : ", tx3_hash)
+tx4_hash = "sHR24lznDnSHnXVnkaSaPE1pYDHBkU9rVWLnfKUkrvY="
+sig1 = private_key1_obj.sign(str_to_byte(tx4_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
+sig2 = private_key2_obj.sign(str_to_byte(tx4_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
+sig_str1 = byte_to_str(sig1)
+sig_str2 = byte_to_str(sig2)
+print("transaction hasing : ", tx4_hash)
 print(hash(public_key_str))
-print(sig_str)
-public_key1_obj.verify(sig, str_to_byte(tx3_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
+print(sig_str1)
+print(sig_str2)
+public_key1_obj.verify(sig1, str_to_byte(tx4_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
+public_key2_obj.verify(sig2, str_to_byte(tx4_hash), ec.ECDSA(Prehashed(hashes.SHA256())))
 
 
 P2PKH_locking = "DUP HASH <pubKeyHash> EQUALVERIFY CHECKSIG"
 P2PKH_unlocking = "<sig> <pubKey>"
+
+hash_data = "OP_EQUAL OP_IF OP_DUP OP_HASH YEpOqd95+FCzs3aqcZxqQyylgMoSAjyPGYS2iCwbLmM= OP_EQUALVERIFY OP_CHECKSIG OP_ELSE 2 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdvLD3mnd3k7iWpRDqo6RvxdvbA7HC8jlNsCqIXLmxiI59Ejpy7SPsU2M3jhWlhoSgw9JcUwENdZCutwmQLILJg== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEazw7FD31oZtV6gC+F8OfQB1YxYQll5qEhb80GfiGfUZmtYVxV7o+DHMIB3uUVjU6a3+X8hhu5j/afFULCWRcwA== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEC45AV/QSbdCgSfoKEwGv0HRPrNGsTn2u/aQ1+k5mAcjmjdI9Cf1O6ty1IgqdGm1lDEoYmH6pwqGLEsOEJUauEw== 3 OP_CHECKMULTISIG OP_ENDIF"
+hash_data = "OP_EQUAL OP_IF OP_DUP OP_HASH YEpOqd95+FCzs3aqcZxqQyylgMoSAjyPGYS2iCwbLmM= OP_EQUALVERIFY OP_CHECKSIG OP_ELSE 2 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdvLD3mnd3k7iWpRDqo6RvxdvbA7HC8jlNsCqIXLmxiI59Ejpy7SPsU2M3jhWlhoSgw9JcUwENdZCutwmQLILJg== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEazw7FD31oZtV6gC+F8OfQB1YxYQll5qEhb80GfiGfUZmtYVxV7o+DHMIB3uUVjU6a3+X8hhu5j/afFULCWRcwA== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEC45AV/QSbdCgSfoKEwGv0HRPrNGsTn2u/aQ1+k5mAcjmjdI9Cf1O6ty1IgqdGm1lDEoYmH6pwqGLEsOEJUauEw== 3 OP_CHECKMULTISIG OP_ENDIF"
+print(hash(hash_data))
