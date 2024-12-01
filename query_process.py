@@ -5,7 +5,6 @@ class QueryProcess:
     def __init__(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect(('127.0.0.1', 9999))
-        pass
 
     def run(self):
         while True:

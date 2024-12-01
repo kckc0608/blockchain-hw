@@ -20,8 +20,8 @@ class FullNode():
         self.processed_tx = []
 
         self.__set_socket()
-        query_listening_thread = Thread(target=self.__get_client, daemon=True)
-        query_listening_thread.start()
+        client_waiting_thread = Thread(target=self.__get_client, daemon=True)
+        client_waiting_thread.start()
 
 
     def run(self):
@@ -32,7 +32,6 @@ class FullNode():
                     response = self.__process_query(query)
                     self.__send_response(client_socket, response)
                 except Exception as e:
-                    # print(f"run: {e}")
                     client_socket.close()
                 continue
             self.__process_transaction()
@@ -44,7 +43,6 @@ class FullNode():
         self.server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         self.server_socket.bind((self.HOST, self.PORT))
 
-
     def __get_client(self):
         self.server_socket.listen()
         while True:
@@ -54,7 +52,6 @@ class FullNode():
                 query_listening_thread.start()
             except Exception as e:
                 client_socket.close()
-                # print(e)
 
     def __get_query(self, client_socket):
         self.server_socket.listen()
@@ -63,10 +60,8 @@ class FullNode():
                 data = str(client_socket.recv(1024), encoding='utf-8')
                 self.query_queue.append((client_socket, data))
             except Exception as e:
-                # print(e)
                 client_socket.close()
                 break
-
 
     def __process_query(self, query):
         if query == "transactions":
@@ -185,8 +180,8 @@ class FullNode():
         return base64.b64encode(byte_hash).decode('ascii')
 
 
-transaction_dict = json.load(open('data/transaction.json'))
-utxo_dict = json.load(open('data/utxo.json'))
+transaction_dict = json.load(open('data/transactions.json'))
+utxo_dict = json.load(open('data/UTXOes.json'))
 transaction_set = deque(map(lambda json_dict:Transaction(json_dict), transaction_dict))
 utxo_set = deque(map(lambda json_dict:Utxo(json_dict), utxo_dict))
 
