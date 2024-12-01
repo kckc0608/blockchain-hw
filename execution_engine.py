@@ -16,26 +16,7 @@ class ExecutionEngine:
     def calculate(self, tx :Transaction, script:str):
         # print(script)
         self.__tx: Transaction = tx
-        script_tokens = list(reversed(script.split()))
-        if not script_tokens:
-            raise Exception("script is empty")
-
-        if len(script_tokens) > 1 and script_tokens[1] == "OP_EQUALVERIFY" and script_tokens[0] == "OP_CHECKFINALRESULT": # P2SH
-            op_dup_idx = script_tokens.index("OP_DUP")
-            script_sig_tokens = script_tokens[op_dup_idx+1:]
-            while script_sig_tokens:
-                token = script_sig_tokens[-1]
-                if self.__is_op(token):
-                    break
-
-                self.__stack.append(script_sig_tokens.pop())
-
-
-            self.__script_list = script_tokens[:op_dup_idx+1] + [" ".join(reversed(script_sig_tokens))]
-            # print(self.__script_list)
-            # print(self.__stack)
-        else:
-            self.__script_list = script_tokens
+        self.__script_list = self.__parse_script(script)
 
         while len(self.__script_list):
             token = self.__script_list.pop()
@@ -46,6 +27,26 @@ class ExecutionEngine:
                 self.__stack.append(token)
             # print(self.__stack, self.__script_list)
 
+    def __parse_script(self, script: str):
+        script_tokens = list(reversed(script.split()))
+        if not script_tokens:
+            raise Exception("script is empty")
+
+        if len(script_tokens) > 1 and script_tokens[1] == "OP_EQUALVERIFY" and script_tokens[0] == "OP_CHECKFINALRESULT":  # P2SH
+            op_dup_idx = script_tokens.index("OP_DUP")
+            script_sig_tokens = script_tokens[op_dup_idx + 1:]
+            while script_sig_tokens:
+                token = script_sig_tokens[-1]
+                if self.__is_op(token):
+                    break
+
+                self.__stack.append(script_sig_tokens.pop())
+
+            return script_tokens[:op_dup_idx + 1] + [" ".join(reversed(script_sig_tokens))]
+            # print(self.__script_list)
+            # print(self.__stack)
+
+        return script_tokens
 
     def __is_op(self, token: str):
         return token.startswith('OP_') and ' ' not in token
