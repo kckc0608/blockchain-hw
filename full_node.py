@@ -105,8 +105,10 @@ class FullNode():
             result = "passed"
             self.__remove_utxo(utxo)
             self.__add_utxo_from_outputs(now_tx)
+            self.__print_transaction_validation_result(now_tx, "passed")
         except Exception as e:
-            print(str(e))
+            command = str(e).split(":")[0]
+            self.__print_transaction_validation_result(now_tx, "failed", command)
         finally:
             self.processed_tx.append((self.__hash(str(now_tx)), result))
 
@@ -134,20 +136,14 @@ class FullNode():
         input_amount = utxo.amount
         output_amount_sum = sum([output_amount for output_amount, locking_script in tx.output])
         if input_amount < output_amount_sum:
-            raise Exception("올바르지 않은 amount 데이터")
+            raise Exception("input amount 가 output amount 합보다 작습니다.")
 
     def __validate_script(self, tx, utxo):
-        try:
-            ee = ExecutionEngine()
-            input_script = tx.input.unlocking_script
-            output_script = utxo.locking_script
-            script = input_script + " " + output_script + " OP_CHECKFINALRESULT"
-            ee.calculate(tx, script)
-            self.__print_script_validation_result(tx, "passed")
-        except Exception as e:
-            command = str(e).split(":")[0]
-            self.__print_script_validation_result(tx, "failed", command)
-            raise Exception("스크랩트 검증 실패")
+        ee = ExecutionEngine()
+        input_script = tx.input.unlocking_script
+        output_script = utxo.locking_script
+        script = input_script + " " + output_script + " OP_CHECKFINALRESULT"
+        ee.calculate(tx, script)
 
     def __add_utxo_from_outputs(self, tx):
         for i in range(len(tx.output)):
@@ -160,7 +156,7 @@ class FullNode():
             })
             self.utxo_set.append(new_utxo)
 
-    def __print_script_validation_result(self, tx, result, failed_command=None):
+    def __print_transaction_validation_result(self, tx, result, failed_command=None):
         print(f"\033[1mtransaction:\033[0m \033[1;44;30m {self.__hash(str(tx))} \033[0m")
         print(f"\tinput\t\t{str(tx.input)} \033[1;105;30m {tx.input.get_shorten_unlocking_script()} \033[0m")
         for i in range(len(tx.output)):
