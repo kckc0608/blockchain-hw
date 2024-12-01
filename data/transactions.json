@@ -9,6 +9,30 @@
     },
     "output": [
       {
+        "amount": 2,
+        "locking_script": "OP_DUP OP_HASH <scriptXHash> OP_EQUALVERIFY"
+      },
+      {
+        "amount": 2,
+        "locking_script": "test_locking_script"
+      },
+      {
+        "amount": 3,
+        "locking_script": "test_locking_script"
+      }
+    ]
+  },
+
+  {
+    "input": {
+      "utxo" : {
+        "txid": "txid0",
+        "output_index": 0
+      },
+      "unlocking_script" : "MEUCIBHqxQflJDvUr3+vG/zTrrPN7tOymZulSk/qhffyBi9pAiEAj5cwLSC6mg9bqu+vM1REgbHR+hNL+CGOxFEe2pH6Gsw= MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdvLD3mnd3k7iWpRDqo6RvxdvbA7HC8jlNsCqIXLmxiI59Ejpy7SPsU2M3jhWlhoSgw9JcUwENdZCutwmQLILJg=="
+    },
+    "output": [
+      {
         "amount": 1,
         "locking_script": "OP_DUP OP_HASH <scriptXHash> OP_EQUALVERIFY"
       },
@@ -90,6 +114,22 @@
       },
       {
         "amount": 3,
+        "locking_script": "test_locking_script"
+      }
+    ]
+  },
+
+  {
+    "input": {
+      "utxo" : {
+        "txid": "txid4",
+        "output_index": 0
+      },
+      "unlocking_script" : "MEYCIQDGIdNeaFdbXAhpAHd4ie90Gan5OKgoycY8SaEV6wuOqAIhANZitaBFkPOEzpxZF3R1ccSJsnfMd1C6+y9fUqer823W MEYCIQCAmcGqfhYgiz5cJMMsZdx7rzy5dsPkZQ9JSExxze5OJQIhALqscNg+gOxZLrMElNPVIysMaZpRuUBzS43lDAGRRpHA 4 5 OP_EQUAL OP_IF OP_DUP OP_HASH YEpOqd95+FCzs3aqcZxqQyylgMoSAjyPGYS2iCwbLmM= OP_EQUALVERIFY OP_CHECKSIG OP_ELSE 2 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEdvLD3mnd3k7iWpRDqo6RvxdvbA7HC8jlNsCqIXLmxiI59Ejpy7SPsU2M3jhWlhoSgw9JcUwENdZCutwmQLILJg== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEazw7FD31oZtV6gC+F8OfQB1YxYQll5qEhb80GfiGfUZmtYVxV7o+DHMIB3uUVjU6a3+X8hhu5j/afFULCWRcwA== MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEC45AV/QSbdCgSfoKEwGv0HRPrNGsTn2u/aQ1+k5mAcjmjdI9Cf1O6ty1IgqdGm1lDEoYmH6pwqGLEsOEJUauEw== 3 OP_CHECKMULTISIG OP_ENDIF"
+    },
+    "output": [
+      {
+        "amount": 1,
         "locking_script": "test_locking_script"
       }
     ]
