@@ -176,8 +176,8 @@ class FullNode():
         return base64.b64encode(byte_hash).decode('ascii')
 
 
-transaction_dict = json.load(open('data/transactions.json'))
-utxo_dict = json.load(open('data/UTXOes.json'))
+transaction_dict = json.load(open('src/data/transactions.json'))
+utxo_dict = json.load(open('src/data/UTXOes.json'))
 transaction_set = deque(map(lambda json_dict:Transaction(json_dict), transaction_dict))
 utxo_set = deque(map(lambda json_dict:Utxo(json_dict), utxo_dict))
 
